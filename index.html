@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two Mapbox Maps</title>
+
+    <!-- <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet"> -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+
+    <!-- <link href="css/searchbox.css" rel="stylesheet" type="text/css">  -->
+
+    <!-- <link href="https://api.mapbox.com/mapbox-assembly/v1.3.0/assembly.min.css" rel="stylesheet"> -->
+    <script id="search-js" defer="" src="https://api.mapbox.com/search-js/v1.0.0-beta.24/web.js"></script>
+
+    <script type="module" src="script.js"></script>
+    <script src="https://unpkg.com/@turf/turf"></script> <!-- Turf.js for circle generation -->
+
+    <link href="css/console.css" rel="stylesheet" type="text/css"> 
+    <link href="css/legend.css" rel="stylesheet" type="text/css"> 
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+
+
+    <style>
+        /* body { margin: 0; display: flex; } */
+        /* .map-container { width: 50vw; height: 100vh; } */
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class = "zoombox">
+            <div id="zoom-level" class = "zoombox-text">11</div>
+        </div>
+    </div>
+    <div class="compare-container">
+        <!-- <div>
+            <div class="legend-container">
+                Legend
+            </div>
+        </div> -->
+        <div>
+            <div class="compare-header" id="header-left">
+                <div class="title-block hide" id="title-block-left">
+                    <div class="title-nbhd"></div>
+                    <div class="title-city"></div>
+                </div>
+                <div class="searchbox-container" id="searchbox-container-left"></div>
+            </div>
+            <div class="meta-container" id="meta-container-left">
+                <div class="loading-spinner" id="loading-spinner-left" style="display: none;"></div>
+                <div class="close-button" id="map1-close-butt">
+                    <img src="./assets/icons/Icon_x.svg" class = "close-x">
+                </div>
+                <div class="set-point" id="map1-set-point">Set Point</div>
+                <div id="map1-id" class="map-container"></div>
+            </div>
+        </div>
+        <div>
+            <div class="compare-header" id="header-right">
+                <div class="title-block hide" id="title-block-right">
+                    <div class="title-nbhd"></div>
+                    <div class="title-city"></div>
+                </div>
+                <div class="searchbox-container" id="searchbox-container-right"></div>
+            </div>
+            <div class="meta-container">
+                <div class="loading-spinner" id="loading-spinner-right" style="display: none;"></div>
+                <div class="close-button" id="map2-close-butt">
+                    <img src="./assets/icons/Icon_x.svg" class = "close-x">
+                </div>
+                <div class="set-point" id="map2-set-point">Set Point</div>
+                <div id="map2-id" class="map-container"></div>
+            </div>
+        </div>
+        <div>
+            <div class="legend-container">
+                <div class="dropdown">
+                    <div class="button-container">
+                        <button class="dropdown-button" id="dropdownButton">
+                            <div>Amenity Density</div>
+                            <img src="./assets/icons/Icon_arrowDown.svg" class = "arrowDown">
+                        </button>
+                        <button class="settings-button" id="settingsButton">
+                            <div></div>
+                            <img src="./assets/icons/Icon_kebab.svg" class = "kebab">
+                        </button>
+                    </div>
+                    <div class="dropdown-content" id="dropdownContent">
+                        <div data-value="heatmap">Amenity Density</div>
+                        <!-- <div data-value="2">Amenity Type</div> -->
+                        <div data-value="buildings">Land Use</div>
+                    </div>
+                </div>
+                <div class="legend" id="legend-amenDen"> 
+                    <div class="gradient"></div>
+                    <div class="gradient-labels">
+                        <div class="gradient-label">More Dense</div>
+                        <div class="gradient-label">Less Dense</div>
+                    </div>
+                </div>
+                <div class="legend hide" id="legend-landUse"> 
+                    <div class="category">
+                        <div class="category-color" style="background-color: #000000;"></div>
+                        <div class="category-color" style="background-color: #B2E3AD;"></div>
+                        <div class="category-color" style="background-color: #92D7FC;"></div>
+                    </div>
+                    <div class="gradient-labels">
+                        <div class="category-label">Building</div>
+                        <div class="category-label">Green Space</div>
+                        <div class="category-label">Water</div>
+                    </div>
+                </div>
+                <div class="settings-menu hide" id="settingsMenu">
+                    <div class="settings-subcontainer" id="settings-radius">
+                        <div id="search-rad">Search Radius (m)</div>
+
+                        <div class="dropdown" id="dropdown-rad">
+                            <button class="dropdown-button" id="dropdownButton-rad">
+                                <div>750 m</div>
+                                <img src="./assets/icons/Icon_arrowDown.svg" class = "arrowDown">
+                            </button>
+                            <div class="dropdown-content" id="dropdownContent-rad">
+                                <div data-value=500>500 m</div>
+                                <div data-value=750>750 m</div>
+                                <div data-value=1000>1,000 m</div>
+                                <div data-value=1500>1,500 m</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-subcontainer" id="settings-sliders">
+                        <div class="slider-container">
+                            <div class="label-bar">
+                                <div class="slider-label">Radius</div>
+                                <div class="slider-value" id="slider-value-radius">50</div>
+                            </div>
+                            <div ><input class="slider" type="range" id="radius-slider" min="20" max="100" step="10" value="50"></div>
+                        </div>
+                
+                        <div class="slider-container" id="slider-bottom">
+                            <div class="label-bar">
+                                <div class="slider-label">Intensity</div>
+                                <div class="slider-value" id="slider-value-intensity">0.4</div>
+                            </div>
+                            <div ><input class="slider" type="range" id="intensity-slider" min="0.2" max="1" step="0.2" value="0.4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    
+
+</body>
+</html>
