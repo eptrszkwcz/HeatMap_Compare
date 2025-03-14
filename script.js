@@ -16,11 +16,7 @@ const map2 = new mapboxgl.Map({
 });
 
 var search_radius = 750;
-
-// var view_mode_left = false;
-// var view_mode_right = false;
-
-let viz_type = "heatmap";
+var viz_type = "heatmap";
 
 function addLayers_map(map){
     // Add a source for the circle
@@ -190,8 +186,6 @@ function createCircle(center, radiusInMeters) {
     return turf.circle(center, radiusInMeters, { steps: 64, units: 'meters' });
 }
 
-// var center_left = [];
-// var center_right = [];
 
 // Store state for both maps
 const mapState = {
@@ -213,12 +207,7 @@ const mapState = {
     }
 };
 
-// const mapState = {
-//     map_select_left: false,
-//     map_select_right: false,
-//     map_set_left: false,
-//     map_set_right: false
-// };
+
 
 // Event listener for map click
 map1.on('click', async (e) => {
@@ -877,5 +866,14 @@ document.addEventListener("click", function(event) {
 
 
 document.getElementById("settingsButton").addEventListener("click", function() {
-    document.getElementById("settingsMenu").classList.toggle("hide");
+    document.getElementById("settingsMenu").classList.remove("hide");
+    document.getElementById("legend-subcontainer-id").classList.add("hide");
+});
+
+// Close dropdown when clicking outside
+document.addEventListener("click", function(event) {
+    if (!event.target.closest(".legend-container")) {
+        document.getElementById("settingsMenu").classList.add("hide");
+        document.getElementById("legend-subcontainer-id").classList.remove("hide");
+    }
 });
