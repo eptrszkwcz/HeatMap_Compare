@@ -1,0 +1,51 @@
+  // Food and Bev  (including nightlife)
+    fb = [amenit = cafe,
+    amenti = restuarant,
+    amenit = bar,
+    amenit = pub]
+ 
+
+    // Arts and Entertainment 
+
+    ae = [amenity = library,
+    amenity = music_school,
+    amenity = cinema,
+    amenity = events_venue,
+    amenity = theatre,
+    amenity = casino,
+    tourism = gallery,
+    tourism = theme_park,
+    tourism = zoo]
+
+
+    // Services & Convenience 
+    sc = [amenity = fast_food,
+    amenity	= bank,
+    amenity	= doctors,
+    amenity	= dentist,
+    amenity	= clinic,
+    amenity	= pharmacy,
+    amenity	= post_office,
+    amenity	= place_of_worship,
+    shop = supermarket,
+    shop = greengrocer,
+    shop = bakery,
+    shop = deli]
+
+
+    // Parks & Rec
+    pr = [leisure = garden,
+    leisure	= dog_park,
+    leisure	= beach_resort,
+    natural	= beach,
+    leisure	= park,
+    leisure	= nature_reserve,
+    leisure	= swimming_pool,
+    leisure	= swimming_area,
+    leisure	= sports_centre,
+    landuse	= recreation_ground]
+
+    // Hotels
+    htl = [building = hotel,
+    tourism	= hotel,
+    tourism	= guest_house]    
