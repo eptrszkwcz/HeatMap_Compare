@@ -90,11 +90,66 @@ function addLayers_map(map){
             }
         });
 
+        // map.addLayer({
+        //     id: 'restaurants-heatmap',
+        //     type: 'heatmap',
+        //     source: 'restaurants',
+        //     maxzoom: 15,
+        //     // filter: ['==', ['get', 'category'], 'sc'], 
+        //     filter: ['==', ['get', 'category'], 'ae'], 
+        //     paint: {
+        //         'heatmap-weight': [
+        //             'interpolate',
+        //             ['linear'],
+        //             ['zoom'],
+        //             13, 0.8,
+        //             14, 0.8
+        //         ],
+        //         'heatmap-intensity': [
+        //             'interpolate',
+        //             ['linear'],
+        //             ['zoom'],
+        //             13, 0.2,
+        //             14, 0.4
+        //         ],
+        //         'heatmap-color': [
+        //             'interpolate',
+        //             ['linear'],
+        //             ['heatmap-density'],
+        //             0, 'rgba(8,0,138,0)',
+        //             0.02, 'rgba(8,0,138,0.05)',
+        //             0.05, 'rgba(8,0,138,0.1)',
+        //             0.2, 'rgba(8,0,138,0.5)',
+        //             0.4, 'rgba(8,0,138,0.7)',
+
+        //             0.6, 'rgba(25,146,167,1)',
+        //             0.8, 'rgba(9,119,121,1)',
+        //             1, 'rgba(0,255,53,1)'
+        //         ],
+        //         'heatmap-radius': [
+        //             'interpolate',
+        //             ['linear'],
+        //             ['zoom'],
+        //             13, 40,
+        //             14, 50
+        //         ],
+        //         'heatmap-opacity': [
+        //             'interpolate',
+        //             ['linear'],
+        //             ['zoom'],
+        //             10, 0.6,
+        //             14, 0.6
+        //         ]
+        //     }
+        // });
+
         map.addLayer({
-            id: 'restaurants-heatmap',
+            id: 'sc-heatmap',
             type: 'heatmap',
             source: 'restaurants',
             maxzoom: 15,
+            filter: ['==', ['get', 'category'], 'sc'], 
+            // filter: ['==', ['get', 'category'], 'ae'], 
             paint: {
                 'heatmap-weight': [
                     'interpolate',
@@ -115,14 +170,119 @@ function addLayers_map(map){
                     ['linear'],
                     ['heatmap-density'],
                     0, 'rgba(8,0,138,0)',
-                    0.02, 'rgba(8,0,138,0.05)',
-                    0.05, 'rgba(8,0,138,0.1)',
-                    0.2, 'rgba(8,0,138,0.5)',
-                    0.4, 'rgba(8,0,138,0.7)',
+                    0.02, 'rgba(162, 194, 232,0)',
+                    0.05, 'rgba(162, 194, 232,0.1)',
+                    0.2, 'rgba(162, 194, 232,0.2)',
+                    0.4, 'rgba(162, 194, 232,0.5)',
 
-                    0.6, 'rgba(25,146,167,1)',
-                    0.8, 'rgba(9,119,121,1)',
-                    1, 'rgba(0,255,53,1)'
+                    0.6, 'rgba(162, 194, 232,1)',
+                    0.8, 'rgba(52, 134, 235,1)',
+                    1, 'rgba(69, 152, 255,1)'
+                ],
+                'heatmap-radius': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    13, 40,
+                    14, 50
+                ],
+                'heatmap-opacity': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    10, 0.6,
+                    14, 0.6
+                ]
+            }
+        });
+
+        map.addLayer({
+            id: 'ae-heatmap',
+            type: 'heatmap',
+            source: 'restaurants',
+            maxzoom: 15,
+            // filter: ['==', ['get', 'category'], 'sc'], 
+            filter: ['==', ['get', 'category'], 'ae'], 
+            paint: {
+                'heatmap-weight': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    13, 0.8,
+                    14, 0.8
+                ],
+                'heatmap-intensity': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    13, 0.5,
+                    14, 0.8
+                ],
+                'heatmap-color': [
+                    'interpolate',
+                    ['linear'],
+                    ['heatmap-density'],
+                    0, 'rgba(8,0,138,0)',
+                    0.02, 'rgba(235, 164, 160,0)',
+                    0.05, 'rgba(235, 164, 160,0.1)',
+                    0.2, 'rgba(235, 164, 160,0.2)',
+                    0.4, 'rgba(235, 164, 160,0.5)',
+
+                    0.6, 'rgba(235, 164, 160,1)',
+                    0.8, 'rgba(207, 44, 31,1)',
+                    1, 'rgba(252, 24, 8,1)'
+                ],
+                'heatmap-radius': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    13, 40,
+                    14, 60
+                ],
+                'heatmap-opacity': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    10, 0.6,
+                    14, 0.6
+                ]
+            }
+        });
+
+        map.addLayer({
+            id: 'fb-heatmap',
+            type: 'heatmap',
+            source: 'restaurants',
+            maxzoom: 15,
+            filter: ['==', ['get', 'category'], 'fb'], 
+            paint: {
+                'heatmap-weight': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    13, 0.8,
+                    14, 0.8
+                ],
+                'heatmap-intensity': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    13, 0.1,
+                    14, 0.3
+                ],
+                'heatmap-color': [
+                    'interpolate',
+                    ['linear'],
+                    ['heatmap-density'],
+                    0, 'rgba(8,0,138,0)',
+                    0.02, 'rgba(169, 252, 197,0)',
+                    0.05, 'rgba(169, 252, 197,0.1)',
+                    0.2, 'rgba(169, 252, 197,0.2)',
+                    0.4, 'rgba(169, 252, 197,0.5)',
+
+                    0.6, 'rgba(169, 252, 197,0.7)',
+                    0.8, 'rgba(66, 214, 116,1)',
+                    1, 'rgba(5, 242, 85,1)'
                 ],
                 'heatmap-radius': [
                     'interpolate',
