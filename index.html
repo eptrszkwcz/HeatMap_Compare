@@ -17,7 +17,10 @@
     
     <script type="module" src="legend_controlls.js"></script>
     <script type="module" src="script.js"></script>
-    <script src="https://unpkg.com/@turf/turf"></script> <!-- Turf.js for circle generation -->
+    <!-- <script src="https://unpkg.com/@turf/turf"></script> Turf.js for circle generation -->
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@latest/turf.min.js"></script> <!-- Turf.js for circle generation -->
+
+    <script src="https://d3js.org/d3.v7.min.js"></script> <!-- D3.js for radar chart -->
 
     <link href="css/console.css" rel="stylesheet" type="text/css"> 
     <link href="css/legend.css" rel="stylesheet" type="text/css"> 
@@ -154,6 +157,8 @@
         </div>
 
     </div>
+
+    <div id="radar-chart"></div>
 
 
     
