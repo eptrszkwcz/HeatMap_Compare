@@ -4,9 +4,14 @@ body {
   }
 
 .header{
-    height: 80px;
+    height: 120px;
     margin-right: 120px;
     margin-left: 120px;
+}
+
+.compare-column{
+    /* height: 900px; */
+    height: 550px;
 }
 
 .compare-container{
@@ -21,18 +26,25 @@ body {
 }
 
 .map-container{
-    /* margin: 30px; */
     width: 500px;
     height: 500px;
-
     border-radius: 15px;
+    /* border: solid white 2px; */
+    transition: border-radius 0.3s ease-in-out;
 }
 
-.map-container.true{
+.map-container.true {
     border-radius: 500px;
+    transition: border-radius 0.3s ease-in-out;
+}
+
+/* Separate transition for the border to delay it */
+.map-container.true {
     border-style: solid;
     border-color: #0800F2;
     border-width: 2px;
+    transition: border-color .05s ease 0.5s, 
+                /* border-width 0.1s ease 0.3s; */
 }
 
 .map-container.true .mapboxgl-canvas {
@@ -190,4 +202,33 @@ body {
 
 .title-block.hide{
     display: none;
+}
+
+
+.chart-container{
+    margin-top: 20px;
+    /* background-color: tomato; */
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.summary-stat{
+    font-size: 14px;
+    color: rgba(8,0,242,1);
+    font-weight: 400 !important;
+    display: block;
+}
+
+.summary-stat.hide{
+    font-size: 14px;
+    color: rgba(8,0,242,1);
+    font-weight: 400 !important;
+    display: none;
+}
+
+.sum-stat-amen{
+    font-size: 16px;
+    font-weight: 700 !important;
+    /* color: red; */
 }

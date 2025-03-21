@@ -1,5 +1,5 @@
 import { search_radius, setSearchRadius, viz_type, setVizType } from "./config.js";
-import { map1, map2, mapState, createCircle, fitCircleToBounds, createSetPointHandler } from "./script.js";
+import { map1, map2, mapState, createCircle, fitCircleToBounds, createSetPointHandler, updateHeatmap, adjustOpacity } from "./script.js";
 import { showBuildings, showRestaurants } from "./api_calls.js";
 
 
@@ -35,21 +35,29 @@ document.getElementById("dropdownContent").querySelectorAll(".dropdown-content d
         // change state of map(s)
         if(mapState.map1.map_set){
             if (viz_type === "heatmap") {
+                document.getElementById("bldg-stat-left").classList.add("hide");
                 showRestaurants(mapState.map1.name, map1, mapState.map1.center[1], mapState.map1.center[0], search_radius)
+                adjustOpacity(map1, 1)
                 mapState.map1.map_select = false;   
             } 
             if (viz_type === "buildings") {
+                document.getElementById("summary-stat-left").classList.add("hide");
                 showBuildings(mapState.map1.name, map1, mapState.map1.center[1], mapState.map1.center[0], search_radius)
+                adjustOpacity(map1, 0)
                 mapState.map1.map_select = false; 
             }
         }
         if(mapState.map2.map_set){
             if (viz_type === "heatmap") {
+                document.getElementById("bldg-stat-right").classList.add("hide");
                 showRestaurants(mapState.map2.name, map2, mapState.map2.center[1], mapState.map2.center[0], search_radius)
+                adjustOpacity(map2, 1)
                 mapState.map2.map_select = false;   
             } 
             if (viz_type === "buildings") {
+                document.getElementById("summary-stat-right").classList.add("hide");
                 showBuildings(mapState.map2.name, map2, mapState.map2.center[1], mapState.map2.center[0], search_radius)
+                adjustOpacity(map2, 0)
                 mapState.map2.map_select = false; 
             }
         }
@@ -84,6 +92,26 @@ document.getElementById("dropdownContent-rad").querySelectorAll(".dropdown-conte
         document.getElementById("dropdownButton-rad").innerHTML = 
             `<div>${selectedText_rad}</div>
             <img src="./assets/icons/Icon_arrowDown.svg" class = "arrowDown">`;
+        
+        // update the scale at left
+        document.getElementById("scale-label-id").textContent = (selectedValue_rad*2)+"m";
+
+        // update radius and intensity slider values
+
+        const heatmap_settings = {
+            500: {radius: 50, intensity: 0.3},
+            750: {radius: 50, intensity: 0.3},
+            1000: {radius: 50, intensity: 0.15},
+            1500: {radius: 40, intensity: 0.1}
+        }
+
+        document.getElementById("radius-slider").value = heatmap_settings[selectedValue_rad].radius;
+        document.getElementById("slider-value-radius").textContent = heatmap_settings[selectedValue_rad].radius;
+
+        document.getElementById("intensity-slider").value = heatmap_settings[selectedValue_rad].intensity;
+        document.getElementById("slider-value-intensity").textContent = heatmap_settings[selectedValue_rad].intensity;
+
+        updateHeatmap();
 
 
         document.getElementById("dropdownContent-rad").classList.remove("show");

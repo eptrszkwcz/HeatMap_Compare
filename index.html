@@ -23,8 +23,11 @@
     <script src="https://d3js.org/d3.v7.min.js"></script> <!-- D3.js for radar chart -->
 
     <link href="css/console.css" rel="stylesheet" type="text/css"> 
-    <link href="css/legend.css" rel="stylesheet" type="text/css"> 
-    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+    <link href="css/legend.css" rel="stylesheet" type="text/css">
+    <link href="css/scale.css" rel="stylesheet" type="text/css">  
+    <link href="css/toggle.css" rel="stylesheet" type="text/css">  
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet"> -->
 
 
     <style>
@@ -34,17 +37,22 @@
 </head>
 <body>
     <div class="header">
-        <div class = "zoombox">
+        <div class = "zoombox" style = "display: none;">
             <div id="zoom-level" class = "zoombox-text">11</div>
         </div>
     </div>
     <div class="compare-container">
-        <!-- <div>
-            <div class="legend-container">
-                Legend
+        <div class = "compare-column">
+            <div class="scale-container hide" id="scale-container-id">
+                <div class="scale-label" id= "scale-label-id">1500m</div>
+                <div class="scale-bar-container">
+                    <div class="scale-hor"></div>
+                    <div class="scale-bar"></div>
+                    <div class="scale-hor"></div>
+                </div>
             </div>
-        </div> -->
-        <div>
+        </div>
+        <div class = "compare-column">
             <div class="compare-header" id="header-left">
                 <div class="title-block hide" id="title-block-left">
                     <div class="title-nbhd"></div>
@@ -60,8 +68,17 @@
                 <div class="set-point" id="map1-set-point">Set Point</div>
                 <div id="map1-id" class="map-container"></div>
             </div>
+            <div class="chart-container" id="chart-container-left">
+                <div class="radar-chart"id="radar-chart-left"></div>
+                <div class="summary-stat hide" id="bldg-stat-left">Percent Building - 
+                    <span class="sum-stat-amen" id="sum-stat-bldg-left">50</span>
+                </div>
+                <div class="summary-stat hide" id="summary-stat-left">Amenities per hectare - 
+                    <span class="sum-stat-amen" id="sum-stat-amen-left">50</span>
+                </div>
+            </div>
         </div>
-        <div>
+        <div class = "compare-column" >
             <div class="compare-header" id="header-right">
                 <div class="title-block hide" id="title-block-right">
                     <div class="title-nbhd"></div>
@@ -77,8 +94,17 @@
                 <div class="set-point" id="map2-set-point">Set Point</div>
                 <div id="map2-id" class="map-container"></div>
             </div>
+            <div class="chart-container" id="chart-container-right">
+                <div class="radar-chart"id="radar-chart-right"></div>
+                <div class="summary-stat hide" id="bldg-stat-right">Percent Building - 
+                    <span class="sum-stat-amen" id="sum-stat-bldg-right">50</span>
+                </div>
+                <div class="summary-stat hide" id="summary-stat-right">Amenities per hectare - 
+                    <span class="sum-stat-amen" id="sum-stat-amen-right">50</span>
+                </div>
+            </div>
         </div>
-        <div>
+        <div class = "compare-column">
             <div class="legend-container">
                 <div class="dropdown">
                     <div class="button-container">
@@ -138,7 +164,7 @@
                     <div class="settings-subcontainer" id="settings-sliders">
                         <div class="slider-container">
                             <div class="label-bar">
-                                <div class="slider-label">Radius</div>
+                                <div class="slider-label">Radius (m)</div>
                                 <div class="slider-value" id="slider-value-radius">50</div>
                             </div>
                             <div ><input class="slider" type="range" id="radius-slider" min="20" max="100" step="10" value="50"></div>
@@ -147,9 +173,17 @@
                         <div class="slider-container" id="slider-bottom">
                             <div class="label-bar">
                                 <div class="slider-label">Intensity</div>
-                                <div class="slider-value" id="slider-value-intensity">0.4</div>
+                                <div class="slider-value" id="slider-value-intensity">0.3</div>
                             </div>
-                            <div ><input class="slider" type="range" id="intensity-slider" min="0.2" max="1" step="0.2" value="0.4"></div>
+                            <div ><input class="slider" type="range" id="intensity-slider" min="0.05" max="0.4" step="0.05" value="0.3"></div>
+                        </div>
+                    </div>
+                    <div class="settings-subcontainer">
+                        <div class="toggle-container">
+                            <div>show POIs</div>
+                            <div class = "toggle-space">
+                                <div class = "toggle active" id = "points-toggle-id"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -158,7 +192,7 @@
 
     </div>
 
-    <div id="radar-chart"></div>
+    
 
 
     
