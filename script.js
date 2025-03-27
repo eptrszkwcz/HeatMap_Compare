@@ -205,7 +205,8 @@ export const mapState = {
         city: "",
         country: "",
         map_select: false,
-        map_set: false
+        map_set: false,
+        instance: map1
     },
     map2: {
         name: "map2",
@@ -215,50 +216,35 @@ export const mapState = {
         city: "",
         country: "",
         map_select: false,
-        map_set: false
+        map_set: false,
+        instance: map2
     }
 };
 
 
+// Add event listeners for all maps in object 'mapState'
+Object.entries(mapState).forEach(([key, mapData]) => {
+    let { instance, name } = mapData;
+    let elementId = `${name}-set-point`;
 
-// Event listener for map click
-map1.on('click', async (e) => {
-    mapState.map1.center = [e.lngLat.lng, e.lngLat.lat];
+    instance.on('click', async (e) => {
+        mapData.center = [e.lngLat.lng, e.lngLat.lat];
 
-    // Update the source with the new circle
-    let circleGeoJSON_left = createCircle(mapState.map1.center, search_radius);
-    map1.getSource('circle').setData(circleGeoJSON_left);
-    fitCircleToBounds(map1, mapState.map1.center, search_radius, 50) // Zoom to that circle 
+        // Update the source with the new circle
+        let circleGeoJSON = createCircle(mapData.center, search_radius);
+        instance.getSource('circle').setData(circleGeoJSON);
+        fitCircleToBounds(instance, mapData.center, search_radius, 50); // Zoom to that circle 
 
-    document.getElementById("map1-set-point").classList.add("true");
-    mapState.map1.map_select = true;
-    
-    getLocationDetails(mapState.map1.center[1], mapState.map1.center[0]).then(location => {
-        mapState.map1.neighborhood = location.neighborhood;
-        mapState.map1.city = location.city;
-        mapState.map1.country = location.country;
+        document.getElementById(elementId).classList.add("true");
+        mapData.map_select = true;
+
+        getLocationDetails(mapData.center[1], mapData.center[0]).then(location => {
+            mapData.neighborhood = location.neighborhood;
+            mapData.city = location.city;
+            mapData.country = location.country;
+        });
     });
 });
-
-// Event listener for map click
-map2.on('click', async (e) => {
-    mapState.map2.center = [e.lngLat.lng, e.lngLat.lat];
-
-    // Update the source with the new circle
-    let circleGeoJSON_right = createCircle(mapState.map2.center, search_radius);
-    map2.getSource('circle').setData(circleGeoJSON_right);
-    fitCircleToBounds(map2, mapState.map2.center, search_radius, 50) // Zoom to that circle 
-
-    document.getElementById("map2-set-point").classList.add("true");
-    mapState.map2.map_select = true;
-
-    getLocationDetails(mapState.map2.center[1], mapState.map2.center[0]).then(location => {
-        mapState.map2.neighborhood = location.neighborhood;
-        mapState.map2.city = location.city;
-        mapState.map2.country = location.country;
-    });
-});
-
 
 export function fitCircleToBounds(map, center, radius, padding) {
     const earthRadius = 6371000; // Earth’s radius in meters
@@ -351,7 +337,7 @@ document.getElementById("map2-close-butt").addEventListener("click",
 
 // SET POINT BUTTON FUNCTIONALITY ---------------------------------------------------------------
 
-export function createSetPointHandler(mapKey, map, mapId, buttonId, setPointId, searchBoxId, titleId) {
+export function createSetPointHandler(map, mapKey) {
     return async function () {
         const state = mapState[mapKey]; // Get state for the correct map
 
@@ -361,17 +347,15 @@ export function createSetPointHandler(mapKey, map, mapId, buttonId, setPointId, 
                 map.getSource("circle").setData({ type: "FeatureCollection", features: [] });
             }, 250);
 
-            
-
             // Update UI elements
-            document.getElementById(mapId).classList.add("true");
-            document.getElementById(buttonId).classList.add("true");
-            document.getElementById(setPointId).classList.add("hide");
-            document.getElementById(searchBoxId).classList.add("hide");
+            document.getElementById(mapKey+"-id").classList.add("true");
+            document.getElementById(mapKey + "-close-butt").classList.add("true");
+            document.getElementById(mapKey + "-set-point").classList.add("hide");
+            document.getElementById("searchbox-container-" + state.side).classList.add("hide");
 
-            document.getElementById(titleId).querySelector('div').innerText = state.neighborhood
-            document.getElementById(titleId).querySelectorAll('div')[1].innerText = state.city
-            document.getElementById(titleId).classList.remove("hide");
+            document.getElementById("title-block-" + state.side).querySelector('div').innerText = state.neighborhood
+            document.getElementById("title-block-" + state.side).querySelectorAll('div')[1].innerText = state.city
+            document.getElementById("title-block-" + state.side).classList.remove("hide");
 
             document.getElementById("scale-container-id").classList.remove("hide");
 
@@ -398,11 +382,11 @@ export function createSetPointHandler(mapKey, map, mapId, buttonId, setPointId, 
 
 // Attach event listeners for both maps
 document.getElementById("map1-set-point").addEventListener("click", 
-    createSetPointHandler("map1", map1, "map1-id", "map1-close-butt", "map1-set-point", "searchbox-container-left", "title-block-left")
+    createSetPointHandler(map1, "map1")
 );
 
 document.getElementById("map2-set-point").addEventListener("click", 
-    createSetPointHandler("map2", map2, "map2-id", "map2-close-butt", "map2-set-point", "searchbox-container-right", "title-block-right")
+    createSetPointHandler(map2, "map2")
 );
 
 
@@ -501,8 +485,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
-
-
+3
 export function adjustOpacity(map, opacity) {
     const layers = map.getStyle().layers; // Get current style layers
 

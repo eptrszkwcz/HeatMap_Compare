@@ -16,61 +16,6 @@ const overpassQuery = (lat, lon, radius) => {
     return `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
 };
 
-// const fetchRestaurants = async (lat, lon, radius) => {
-//     try {
-//         const response = await fetch(overpassQuery(lat, lon, radius));
-//         const data = await response.json();
-
-//         function convertToGeoJSON(data) {
-//             const pois = [];
-        
-//             if (!data || !data.elements) {
-//                 console.error("Invalid API response format.");
-//                 return { type: "FeatureCollection", features: [] };
-//             }
-        
-//             for (const element of data.elements) {
-//                 if (!element.tags || !element.tags.name) {
-//                     continue; // Skip elements without a name
-//                 }
-        
-//                 // Extract coordinates
-//                 const poiCoords = [element.lon, element.lat];
-//                 const name = element.tags.name;
-        
-//                 const feature = {
-//                     type: "Feature",
-//                     geometry: {
-//                         type: "Point",
-//                         coordinates: poiCoordsd
-//                     },
-//                     properties: {
-//                         name: name,
-//                         // OSM_category: category,
-//                         // OSM_subcat: subcategory,
-//                         lat: poiCoords[1],
-//                         lon: poiCoords[0],
-//                         geo_type: element.type
-//                     }
-//                 };
-        
-//                 pois.push(feature);
-//             }
-        
-//             return { type: "FeatureCollection", features: pois };
-//         }
-
-//         let formatted_response = convertToGeoJSON(data)
-//         // console.log(formatted_response)
-//         return formatted_response
-
-        
-//     } catch (error) {
-//         console.error('Error fetching data:', error);
-//         return [];
-//     }
-// };
-
 const fetchRestaurants = async (lat, lon, radius) => {
     try {
         const response = await fetch(overpassQuery(lat, lon, radius));
@@ -135,11 +80,6 @@ const fetchRestaurants = async (lat, lon, radius) => {
 
 
         let formatted_response = convertToGeoJSON(data);
-        // logCategoryCounts(formatted_response); // Log the category counts
-
-        // Get category counts and draw radar chart
-        // const categoryCounts = logCategoryCounts(formatted_response);
-        // drawRadarChart(categoryCounts);
 
         return formatted_response;
 
@@ -241,8 +181,6 @@ function drawRadarChart(formatted_response, radar_div) {
 }
 
 
-
-
 export async function showRestaurants(name, map, lat, lon, search_radius) {
     let spinner_div_rest = "";
     let radar_div = "";
@@ -266,21 +204,15 @@ export async function showRestaurants(name, map, lat, lon, search_radius) {
 
         // TURN ON TO DISPLAY RADAR CHART!
         let cat_count = logCategoryCounts(restaurantData); // Log the category counts
-        console.log(cat_count)
         calculate_amenAcre(name, search_radius, cat_count)
-
-
         // drawRadarChart(restaurantData, radar_div); 
+
     } catch (error) {
         console.error("Error fetching restaurant data:", error);
     } finally {
         spinner_rest.style.display = "none"; // Hide spinner when done
     }
 }
-
-
-
-
 
 
 async function fetchBuildingFootprints(lat, lon, radius = 750) {
@@ -438,8 +370,6 @@ export async function showBuildings(name, map, lat, lon, search_radius){
 }
 
 
-
-
 // GET LOCATION DETAILS  ---------------------------------------------------------------
 
 export async function getLocationDetails(lat, lon, attempts = 5, offset = 0.0005) {
@@ -485,10 +415,7 @@ function calculate_amenAcre(name, search_radius, cat_count) {
     let circle_area = parseInt(((search_radius*search_radius)*3.1415)/10000)
     let sum = Object.values(cat_count).reduce((acc, val) => acc + val, 0);
     
-
     let amen_acre = (sum/circle_area).toFixed(1)
-
-    console.log(circle_area, sum, amen_acre)
 
     let stat_id = "";
     let cont_id = "";
@@ -538,7 +465,7 @@ async function getTotalBuildingArea(name, search_radius, bldgData) {
         cont_id = "bldg-stat-right"
     };
 
-    document.getElementById(stat_id).textContent = percBldg;
+    document.getElementById(stat_id).textContent = percBldg+"%";
     document.getElementById(cont_id).classList.remove("hide");
 
     // return totArea_hec;
