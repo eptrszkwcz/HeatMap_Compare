@@ -16,61 +16,6 @@ const overpassQuery = (lat, lon, radius) => {
     return `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
 };
 
-// const fetchRestaurants = async (lat, lon, radius) => {
-//     try {
-//         const response = await fetch(overpassQuery(lat, lon, radius));
-//         const data = await response.json();
-
-//         function convertToGeoJSON(data) {
-//             const pois = [];
-        
-//             if (!data || !data.elements) {
-//                 console.error("Invalid API response format.");
-//                 return { type: "FeatureCollection", features: [] };
-//             }
-        
-//             for (const element of data.elements) {
-//                 if (!element.tags || !element.tags.name) {
-//                     continue; // Skip elements without a name
-//                 }
-        
-//                 // Extract coordinates
-//                 const poiCoords = [element.lon, element.lat];
-//                 const name = element.tags.name;
-        
-//                 const feature = {
-//                     type: "Feature",
-//                     geometry: {
-//                         type: "Point",
-//                         coordinates: poiCoords
-//                     },
-//                     properties: {
-//                         name: name,
-//                         // OSM_category: category,
-//                         // OSM_subcat: subcategory,
-//                         lat: poiCoords[1],
-//                         lon: poiCoords[0],
-//                         geo_type: element.type
-//                     }
-//                 };
-        
-//                 pois.push(feature);
-//             }
-        
-//             return { type: "FeatureCollection", features: pois };
-//         }
-
-//         let formatted_response = convertToGeoJSON(data)
-//         // console.log(formatted_response)
-//         return formatted_response
-
-        
-//     } catch (error) {
-//         console.error('Error fetching data:', error);
-//         return [];
-//     }
-// };
-
 const fetchRestaurants = async (lat, lon, radius) => {
     try {
         const response = await fetch(overpassQuery(lat, lon, radius));
@@ -132,27 +77,9 @@ const fetchRestaurants = async (lat, lon, radius) => {
             return { type: "FeatureCollection", features: pois };
         }
 
-        // New function to log category counts
-        function logCategoryCounts(geoJSON) {
-            const categoryCounts = { fb: 0, ae: 0, sc: 0, pr: 0, htl: 0 };
-        
-            geoJSON.features.forEach(feature => {
-                const category = feature.properties.category;
-                if (categoryCounts.hasOwnProperty(category)) {
-                    categoryCounts[category]++;
-                }
-            });
-        
-            console.log("Category Counts:", categoryCounts);
-            return categoryCounts;
-        }
+
 
         let formatted_response = convertToGeoJSON(data);
-        logCategoryCounts(formatted_response); // Log the category counts
-
-        // Get category counts and draw radar chart
-        const categoryCounts = logCategoryCounts(formatted_response);
-        drawRadarChart(categoryCounts);
 
         return formatted_response;
 
@@ -162,8 +89,28 @@ const fetchRestaurants = async (lat, lon, radius) => {
     }
 };
 
-function drawRadarChart(data) {
-    const width = 400, height = 400, radius = 150;
+
+// New function to log category counts
+function logCategoryCounts(geoJSON) {
+    const categoryCounts = { fb: 0, ae: 0, sc: 0, pr: 0, htl: 0 };
+
+    geoJSON.features.forEach(feature => {
+        const category = feature.properties.category;
+        if (categoryCounts.hasOwnProperty(category)) {
+            categoryCounts[category]++;
+        }
+    });
+
+    // console.log("Category Counts:", categoryCounts);
+    return categoryCounts;
+}
+
+
+function drawRadarChart(formatted_response, radar_div) {
+
+    const data = logCategoryCounts(formatted_response);
+
+    const width = 300, height = 270, radius = 100;
     const categories = Object.keys(data);
     const values = Object.values(data);
     
@@ -175,7 +122,8 @@ function drawRadarChart(data) {
     const angleSlice = (Math.PI * 2) / categories.length;
 
     // Create SVG container
-    const svg = d3.select("#radar-chart")
+    console.log("#" + radar_div)
+    const svg = d3.select("#" + radar_div).html("") // Clear existing content 
         .append("svg")
         .attr("width", width)
         .attr("height", height)
@@ -233,12 +181,17 @@ function drawRadarChart(data) {
 }
 
 
-
-
 export async function showRestaurants(name, map, lat, lon, search_radius) {
     let spinner_div_rest = "";
-    if (name === "map1") {spinner_div_rest = "loading-spinner-left"};
-    if (name === "map2") {spinner_div_rest = "loading-spinner-right"};
+    let radar_div = "";
+    if (name === "map1") {
+        spinner_div_rest = "loading-spinner-left";
+        radar_div = "radar-chart-left";
+    };
+    if (name === "map2") {
+        spinner_div_rest = "loading-spinner-right";
+        radar_div = "radar-chart-right";
+    };
 
     let spinner_rest = document.getElementById(spinner_div_rest);
     spinner_rest.style.display = "block"; // Show spinner
@@ -248,16 +201,18 @@ export async function showRestaurants(name, map, lat, lon, search_radius) {
 
         const restaurantData = await fetchRestaurants(lat, lon, search_radius);
         map.getSource('restaurants').setData(restaurantData);
+
+        // TURN ON TO DISPLAY RADAR CHART!
+        let cat_count = logCategoryCounts(restaurantData); // Log the category counts
+        calculate_amenAcre(name, search_radius, cat_count)
+        // drawRadarChart(restaurantData, radar_div); 
+
     } catch (error) {
         console.error("Error fetching restaurant data:", error);
     } finally {
         spinner_rest.style.display = "none"; // Hide spinner when done
     }
 }
-
-
-
-
 
 
 async function fetchBuildingFootprints(lat, lon, radius = 750) {
@@ -401,6 +356,9 @@ export async function showBuildings(name, map, lat, lon, search_radius){
         map.getSource('restaurants').setData({ type: "FeatureCollection", features: [] });
         const bldgData = await getBuildingGeoJSON(lat, lon, search_radius)
         map.getSource('buildings').setData(bldgData);
+        
+        const totalArea = await getTotalBuildingArea(name, search_radius, bldgData);
+        console.log("Total building footprint area (m²):", totalArea);
 
     } catch (error) {
         console.error("Error fetching building data:", error);
@@ -410,8 +368,6 @@ export async function showBuildings(name, map, lat, lon, search_radius){
 
     
 }
-
-
 
 
 // GET LOCATION DETAILS  ---------------------------------------------------------------
@@ -453,4 +409,64 @@ export async function getLocationDetails(lat, lon, attempts = 5, offset = 0.0005
 
     console.warn('No suitable neighborhood found after multiple attempts.');
     return { neighborhood: 'N/A', city: 'N/A', country: 'N/A' };
+}
+
+function calculate_amenAcre(name, search_radius, cat_count) {
+    let circle_area = parseInt(((search_radius*search_radius)*3.1415)/10000)
+    let sum = Object.values(cat_count).reduce((acc, val) => acc + val, 0);
+    
+    let amen_acre = (sum/circle_area).toFixed(1)
+
+    let stat_id = "";
+    let cont_id = "";
+
+    if (name === "map1") {
+        stat_id = "sum-stat-amen-left"; 
+        cont_id = "summary-stat-left"
+    };
+    if (name === "map2") {
+        stat_id = "sum-stat-amen-right"; 
+        cont_id = "summary-stat-right"
+    };
+
+    document.getElementById(stat_id).textContent = amen_acre;
+    document.getElementById(cont_id).classList.remove("hide");
+}
+
+// import * as turf from "@turf/turf";
+
+async function getTotalBuildingArea(name, search_radius, bldgData) {
+    let circle_area = parseInt(((search_radius*search_radius)*3.1415)/10000)
+
+    if (!bldgData || !bldgData.features) return 0;
+
+    let totalArea = 0;
+
+    bldgData.features.forEach(feature => {
+        if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
+            let area = turf.area(feature); // Turf.js automatically converts to square meters
+            totalArea += area;
+        }
+    });
+
+    let totArea_hec = parseInt(totalArea/10000)
+
+    let percBldg = parseInt((totArea_hec/circle_area)*100)
+
+    let stat_id = "";
+    let cont_id = "";
+
+    if (name === "map1") {
+        stat_id = "sum-stat-bldg-left"; 
+        cont_id = "bldg-stat-left"
+    };
+    if (name === "map2") {
+        stat_id = "sum-stat-bldg-right"; 
+        cont_id = "bldg-stat-right"
+    };
+
+    document.getElementById(stat_id).textContent = percBldg+"%";
+    document.getElementById(cont_id).classList.remove("hide");
+
+    // return totArea_hec;
 }

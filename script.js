@@ -107,8 +107,9 @@ function addLayers_map(map){
                     'interpolate',
                     ['linear'],
                     ['zoom'],
-                    13, 0.2,
-                    14, 0.4
+                    13.27, 0.1,
+                    13.86, 0.15,
+                    14.27, 0.3
                 ],
                 'heatmap-color': [
                     'interpolate',
@@ -128,8 +129,9 @@ function addLayers_map(map){
                     'interpolate',
                     ['linear'],
                     ['zoom'],
-                    13, 40,
-                    14, 50
+                    13.27, 40,
+                    13.86, 50,
+                    14.27, 50
                 ],
                 'heatmap-opacity': [
                     'interpolate',
@@ -197,64 +199,52 @@ export function createCircle(center, radiusInMeters) {
 export const mapState = {
     map1: {
         name: "map1",
+        side: "left",
         center: [],
         neighborhood: "",
         city: "",
         country: "",
         map_select: false,
-        map_set: false
+        map_set: false,
+        instance: map1
     },
     map2: {
         name: "map2",
+        side: "right",
         center: [],
         neighborhood: "",
         city: "",
         country: "",
         map_select: false,
-        map_set: false
+        map_set: false,
+        instance: map2
     }
 };
 
 
+// Add event listeners for all maps in object 'mapState'
+Object.entries(mapState).forEach(([key, mapData]) => {
+    let { instance, name } = mapData;
+    let elementId = `${name}-set-point`;
 
-// Event listener for map click
-map1.on('click', async (e) => {
-    mapState.map1.center = [e.lngLat.lng, e.lngLat.lat];
+    instance.on('click', async (e) => {
+        mapData.center = [e.lngLat.lng, e.lngLat.lat];
 
-    // Update the source with the new circle
-    let circleGeoJSON_left = createCircle(mapState.map1.center, search_radius);
-    map1.getSource('circle').setData(circleGeoJSON_left);
-    fitCircleToBounds(map1, mapState.map1.center, search_radius, 50) // Zoom to that circle 
+        // Update the source with the new circle
+        let circleGeoJSON = createCircle(mapData.center, search_radius);
+        instance.getSource('circle').setData(circleGeoJSON);
+        fitCircleToBounds(instance, mapData.center, search_radius, 50); // Zoom to that circle 
 
-    document.getElementById("map1-set-point").classList.add("true");
-    mapState.map1.map_select = true;
-    
-    getLocationDetails(mapState.map1.center[1], mapState.map1.center[0]).then(location => {
-        mapState.map1.neighborhood = location.neighborhood;
-        mapState.map1.city = location.city;
-        mapState.map1.country = location.country;
+        document.getElementById(elementId).classList.add("true");
+        mapData.map_select = true;
+
+        getLocationDetails(mapData.center[1], mapData.center[0]).then(location => {
+            mapData.neighborhood = location.neighborhood;
+            mapData.city = location.city;
+            mapData.country = location.country;
+        });
     });
 });
-
-// Event listener for map click
-map2.on('click', async (e) => {
-    mapState.map2.center = [e.lngLat.lng, e.lngLat.lat];
-
-    // Update the source with the new circle
-    let circleGeoJSON_right = createCircle(mapState.map2.center, search_radius);
-    map2.getSource('circle').setData(circleGeoJSON_right);
-    fitCircleToBounds(map2, mapState.map2.center, search_radius, 50) // Zoom to that circle 
-
-    document.getElementById("map2-set-point").classList.add("true");
-    mapState.map2.map_select = true;
-
-    getLocationDetails(mapState.map2.center[1], mapState.map2.center[0]).then(location => {
-        mapState.map2.neighborhood = location.neighborhood;
-        mapState.map2.city = location.city;
-        mapState.map2.country = location.country;
-    });
-});
-
 
 export function fitCircleToBounds(map, center, radius, padding) {
     const earthRadius = 6371000; // Earth’s radius in meters
@@ -298,62 +288,76 @@ function enableMapInteractions(map) {
 
 // CLOSE BUTTON FUNCTIONALITY ---------------------------------------------------------------
 
-function createCloseHandler(map, mapId, buttonId, setPointId, searchBoxId, titleId) {
+function createCloseHandler(map, mapKey) {
     return function () {
+        const state = mapState[mapKey]; // Get state for the correct map
         // Clear map sources
         map.getSource("restaurants").setData({ type: "FeatureCollection", features: [] });
         map.getSource("buildings").setData({ type: "FeatureCollection", features: [] });
         map.getSource("circle").setData({ type: "FeatureCollection", features: [] });
 
         // Update UI elements
-        document.getElementById(buttonId).classList.remove("true");
-        document.getElementById(mapId).classList.remove("true");
-        document.getElementById(setPointId).classList.remove("hide", "true");
-        document.getElementById(searchBoxId).classList.remove("hide");
-        document.getElementById(titleId).classList.add("hide");
+        document.getElementById(mapKey + "-close-butt").classList.remove("true");
+        document.getElementById(mapKey + "-id").classList.remove("true");
+        document.getElementById(mapKey + "-set-point").classList.remove("hide", "true");
+        document.getElementById("searchbox-container-" + state.side).classList.remove("hide");
+        document.getElementById("title-block-" + state.side).classList.add("hide");
+
+        document.getElementById("radar-chart-" + state.side).innerHTML= "";
+
+        document.getElementById("summary-stat-" + state.side).classList.add("hide");
+        document.getElementById("bldg-stat-" + state.side).classList.add("hide");
+        adjustOpacity(map, 1)
+
 
         // Enable interactions on the map
         enableMapInteractions(map);
 
-        // Update variables (assuming these exist globally)
-        if (mapId === "map1-id") {
-            mapState.map1.map_select = false;
-            mapState.map1.map_set = false;
-        } else if (mapId === "map2-id") {
-            mapState.map2.map_select = false;
-            mapState.map2.map_set = false;
+        // console.log(mapState.map1.map_set, mapState.map2.map_set)
+
+        if (!(mapState.map1.map_set && mapState.map2.map_set)){
+            document.getElementById("scale-container-id").classList.add("hide");
         }
+
+        // Update variables (assuming these exist globally)
+        mapState[mapKey].map_select = false;
+        mapState[mapKey].map_set = false;
+
     };
 }
 
 // Attach event listeners for both maps
 document.getElementById("map1-close-butt").addEventListener("click", 
-    createCloseHandler(map1, "map1-id", "map1-close-butt", "map1-set-point", "searchbox-container-left", "title-block-left")
+    createCloseHandler(map1, "map1")
 );
 
 document.getElementById("map2-close-butt").addEventListener("click", 
-    createCloseHandler(map2, "map2-id", "map2-close-butt", "map2-set-point", "searchbox-container-right", "title-block-right")
+    createCloseHandler(map2, "map2")
 );
 
 // SET POINT BUTTON FUNCTIONALITY ---------------------------------------------------------------
 
-export function createSetPointHandler(mapKey, map, mapId, buttonId, setPointId, searchBoxId, titleId) {
+export function createSetPointHandler(map, mapKey) {
     return async function () {
         const state = mapState[mapKey]; // Get state for the correct map
 
         if (state.map_select) {
             fitCircleToBounds(map, state.center, search_radius, 0);
-            map.getSource("circle").setData({ type: "FeatureCollection", features: [] });
+            setTimeout(() => {
+                map.getSource("circle").setData({ type: "FeatureCollection", features: [] });
+            }, 250);
 
             // Update UI elements
-            document.getElementById(mapId).classList.add("true");
-            document.getElementById(buttonId).classList.add("true");
-            document.getElementById(setPointId).classList.add("hide");
-            document.getElementById(searchBoxId).classList.add("hide");
+            document.getElementById(mapKey+"-id").classList.add("true");
+            document.getElementById(mapKey + "-close-butt").classList.add("true");
+            document.getElementById(mapKey + "-set-point").classList.add("hide");
+            document.getElementById("searchbox-container-" + state.side).classList.add("hide");
 
-            document.getElementById(titleId).querySelector('div').innerText = state.neighborhood
-            document.getElementById(titleId).querySelectorAll('div')[1].innerText = state.city
-            document.getElementById(titleId).classList.remove("hide");
+            document.getElementById("title-block-" + state.side).querySelector('div').innerText = state.neighborhood
+            document.getElementById("title-block-" + state.side).querySelectorAll('div')[1].innerText = state.city
+            document.getElementById("title-block-" + state.side).classList.remove("hide");
+
+            document.getElementById("scale-container-id").classList.remove("hide");
 
             // Handle visualization mode
             if (viz_type === "heatmap") {
@@ -362,7 +366,11 @@ export function createSetPointHandler(mapKey, map, mapId, buttonId, setPointId, 
             } 
 
             if (viz_type === "buildings") {
+                // map.setStyle("mapbox://styles/ptrszkwcz/cm8i0b41x016201r0615u66no");
+                // 
                 showBuildings(state.name, map, state.center[1], state.center[0], search_radius);
+                adjustOpacity(map, 0)
+                
                 // state.map_select = false; 
             }
             state.map_set = true;
@@ -374,11 +382,11 @@ export function createSetPointHandler(mapKey, map, mapId, buttonId, setPointId, 
 
 // Attach event listeners for both maps
 document.getElementById("map1-set-point").addEventListener("click", 
-    createSetPointHandler("map1", map1, "map1-id", "map1-close-butt", "map1-set-point", "searchbox-container-left", "title-block-left")
+    createSetPointHandler(map1, "map1")
 );
 
 document.getElementById("map2-set-point").addEventListener("click", 
-    createSetPointHandler("map2", map2, "map2-id", "map2-close-butt", "map2-set-point", "searchbox-container-right", "title-block-right")
+    createSetPointHandler(map2, "map2")
 );
 
 
@@ -425,8 +433,8 @@ window.addEventListener('load', () => {
 
 // SLIDERS ---------------------------------------------------------------
 
-function updateHeatmap() {
-    console.log(map1)
+export function updateHeatmap() {
+    // console.log(map1)
     const radius = document.getElementById('radius-slider').value;
     const intensity = document.getElementById('intensity-slider').value;
 
@@ -443,3 +451,70 @@ function updateHeatmap() {
 // Attach event listeners to sliders
 document.getElementById('radius-slider').addEventListener('input', updateHeatmap);
 document.getElementById('intensity-slider').addEventListener('input', updateHeatmap);
+
+// // Attach event listener for show points button
+// document.getElementById("points-toggle-id").addEventListener("click", 
+//     // createCloseHandler(map1, "map1")
+//     console.log("HERRO")
+// );
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const toggle = document.getElementById("points-toggle-id");
+
+    toggle.addEventListener("click", () => {
+        toggle.classList.toggle("active");
+
+        if (map1.getLayer("restaurants-layer")) {
+            const visibility = map1.getLayoutProperty("restaurants-layer", "visibility");
+
+            if (visibility === "none") {
+                map1.setLayoutProperty("restaurants-layer", "visibility", "visible");
+            } else {
+                map1.setLayoutProperty("restaurants-layer", "visibility", "none");
+            }
+        }
+        if (map2.getLayer("restaurants-layer")) {
+            const visibility = map2.getLayoutProperty("restaurants-layer", "visibility");
+
+            if (visibility === "none") {
+                map2.setLayoutProperty("restaurants-layer", "visibility", "visible");
+            } else {
+                map2.setLayoutProperty("restaurants-layer", "visibility", "none");
+            }
+        }
+    });
+});
+3
+export function adjustOpacity(map, opacity) {
+    const layers = map.getStyle().layers; // Get current style layers
+
+    layers.forEach(layer => {
+        const layerId = layer.id;
+        const layerType = layer.type;
+        const layerSource = layer.source;
+
+        if (layerId === 'bldg-fill') return;
+        if (layerId === 'circle-fill') return;
+        if (layerId === 'landuse') return;
+        if (layerId === 'water') return;
+        // if (layerSource !== 'composite') return;
+
+        // Apply the correct opacity property based on the layer type
+        if (layerType === 'fill') {
+            map.setPaintProperty(layerId, 'fill-opacity', parseFloat(opacity));
+        } else if (layerType === 'background') {
+            map.setPaintProperty(layerId, 'background-opacity', parseFloat(opacity));
+        } else if (layerType === 'line') {
+            map.setPaintProperty(layerId, 'line-opacity', parseFloat(opacity));
+        } else if (layerType === 'symbol') {
+            map.setPaintProperty(layerId, 'text-opacity', parseFloat(opacity));
+            map.setPaintProperty(layerId, 'icon-opacity', parseFloat(opacity))
+        } else if (layerType === 'raster') {
+            map.setPaintProperty(layerId, 'raster-opacity', parseFloat(opacity));
+        } else if (layerType === 'circle') {
+            map.setPaintProperty(layerId, 'circle-opacity', parseFloat(opacity));
+        }
+    });
+}
+
