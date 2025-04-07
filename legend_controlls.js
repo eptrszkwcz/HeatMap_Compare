@@ -127,7 +127,8 @@ document.getElementById("dropdownContent-rad").querySelectorAll(".dropdown-conte
         if (mapState.map1.map_set){
             map1.getSource('circle').setData({ type: "FeatureCollection", features: [] });
             fitCircleToBounds(map1, mapState.map1.center, search_radius, 0) // Zoom to that circle 
-            createSetPointHandler("map1", map1, "map1-id", "map1-close-butt", "map1-set-point", "searchbox-container-left", "title-block-left")();
+            // createSetPointHandler("map1", map1, "map1-id", "map1-close-butt", "map1-set-point", "searchbox-container-left", "title-block-left")()
+            createSetPointHandler(map1,"map1",)()
         }
 
         if (mapState.map2.map_select){
@@ -139,7 +140,8 @@ document.getElementById("dropdownContent-rad").querySelectorAll(".dropdown-conte
         if (mapState.map2.map_set){
             map2.getSource('circle').setData({ type: "FeatureCollection", features: [] });
             fitCircleToBounds(map2, mapState.map2.center, search_radius, 0) // Zoom to that circle 
-            createSetPointHandler("map2", map2, "map2-id", "map2-close-butt", "map2-set-point", "searchbox-container-right", "title-block-right")();
+            // createSetPointHandler("map2", map2, "map2-id", "map2-close-butt", "map2-set-point", "searchbox-container-right", "title-block-right")();
+            createSetPointHandler(map2,"map2",)()
         }
         
     });
