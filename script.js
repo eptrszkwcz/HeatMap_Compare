@@ -341,7 +341,7 @@ export function createSetPointHandler(map, mapKey) {
     return async function () {
         const state = mapState[mapKey]; // Get state for the correct map
 
-        if (state.map_select) {
+        if (state.map_select || state.map_set) {
             fitCircleToBounds(map, state.center, search_radius, 0);
             setTimeout(() => {
                 map.getSource("circle").setData({ type: "FeatureCollection", features: [] });
@@ -367,7 +367,6 @@ export function createSetPointHandler(map, mapKey) {
 
             if (viz_type === "buildings") {
                 // map.setStyle("mapbox://styles/ptrszkwcz/cm8i0b41x016201r0615u66no");
-                // 
                 showBuildings(state.name, map, state.center[1], state.center[0], search_radius);
                 adjustOpacity(map, 0)
                 
@@ -434,7 +433,6 @@ window.addEventListener('load', () => {
 // SLIDERS ---------------------------------------------------------------
 
 export function updateHeatmap() {
-    // console.log(map1)
     const radius = document.getElementById('radius-slider').value;
     const intensity = document.getElementById('intensity-slider').value;
 
@@ -451,13 +449,6 @@ export function updateHeatmap() {
 // Attach event listeners to sliders
 document.getElementById('radius-slider').addEventListener('input', updateHeatmap);
 document.getElementById('intensity-slider').addEventListener('input', updateHeatmap);
-
-// // Attach event listener for show points button
-// document.getElementById("points-toggle-id").addEventListener("click", 
-//     // createCloseHandler(map1, "map1")
-//     console.log("HERRO")
-// );
-
 
 document.addEventListener("DOMContentLoaded", () => {
     const toggle = document.getElementById("points-toggle-id");
