@@ -82,7 +82,7 @@ document.getElementById("dropdownButton-rad").addEventListener("click", function
 });
 
 document.getElementById("dropdownContent-rad").querySelectorAll(".dropdown-content div").forEach(item => {
-    
+
     item.addEventListener("click", function() {
         let selectedText_rad = this.textContent;
         let selectedValue_rad = this.getAttribute("data-value");
